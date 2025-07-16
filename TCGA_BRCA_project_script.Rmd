@@ -1,0 +1,71 @@
+---
+title: "Health Informatics Workshop"
+output: html_notebook
+---
+
+## 1) Load required libraries
+
+```{r}
+library(maftools)
+library(dplyr)
+
+```
+
+## 2) Set your working directory
+```{r}
+setwd("")
+
+```
+
+## 3A) Load data files (using link)
+```{r}
+??
+
+```
+## 3B) Load data files (from local)
+
+```{r}
+maf_file <- "Data/mc3.v0.2.8.PUBLIC.maf.gz"
+brca_maf <- read.maf(maf = maf_file)
+# Clinical data can also be added like this:
+clinical_data <- read.delim("Data/clinical_PANCAN_patient_with_followup.tsv", sep = "\t", header = TRUE)
+```
+
+
+
+## 4) Combine Clinical data with maf file
+```{r}
+maf_ids <- unique(as.character(brca_maf@data$Tumor_Sample_Barcode))
+head(maf_ids)
+maf_patient_ids <- substr(maf_ids, 1, 12)
+
+clinical_ids <- unique(as.character(clinical_data$bcr_patient_barcode))  
+head(clinical_ids)
+
+sum(maf_patient_ids %in% clinical_ids)
+
+# Subset to patients present in both datasets
+matched_clinical <- clinical_data[clinical_data$bcr_patient_barcode %in% maf_patient_ids, ]
+matched_clinical$Tumor_Sample_Barcode <- matched_clinical$bcr_patient_barcode
+
+#recreate maf file
+brca_maf2 <- read.maf(maf = maf_file, clinicalData = matched_clinical)
+
+#Save maf for quick load next time 
+
+saveRDS(brca_maf2, "MAF_with_matched_clinical.rds")
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
